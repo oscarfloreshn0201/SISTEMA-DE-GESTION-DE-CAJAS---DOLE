@@ -5,73 +5,67 @@
     <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-2xl font-bold text-azul-marino">
-                <i class="fas fa-user-plus mr-2"></i>Registrar Nuevo Usuario
+                <i class="fas fa-user-edit mr-2"></i>Editar Usuario
             </h2>
-            <p class="text-gray-600 mt-1">Complete el formulario para crear un nuevo usuario</p>
+            <p class="text-gray-600 mt-1">Modifique los datos del usuario</p>
         </div>
         <a href="{{ route('users.index') }}" class="text-gray-500 hover:text-gray-700">
             ← Volver al Listado
         </a>
     </div>
 
-    <form method="POST" action="{{ route('users.store') }}" class="space-y-6">
+    <form method="POST" action="{{ route('users.update', $user) }}">
         @csrf
+        @method('PUT')
 
-        <!-- Nombre de Usuario -->
-        <div>
+        <div class="mb-4">
             <label class="block text-gray-700 font-semibold mb-2">
                 <i class="fas fa-user mr-2 text-azul-principal"></i>Nombre de Usuario
             </label>
-            <input type="text" name="username" value="{{ old('username') }}" 
+            <input type="text" name="username" value="{{ old('username', $user->username) }}" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-azul-principal focus:ring-2 focus:ring-azul-celeste"
-                   placeholder="Ej: jperez" required autofocus>
+                   required>
             @error('username')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-            <p class="text-xs text-gray-400 mt-1">Nombre único para iniciar sesión</p>
         </div>
 
-        <!-- Nombre Completo -->
-        <div>
+        <div class="mb-4">
             <label class="block text-gray-700 font-semibold mb-2">
                 <i class="fas fa-id-card mr-2 text-azul-principal"></i>Nombre Completo
             </label>
-            <input type="text" name="name" value="{{ old('name') }}" 
+            <input type="text" name="name" value="{{ old('name', $user->name) }}" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-azul-principal focus:ring-2 focus:ring-azul-celeste"
-                   placeholder="Ej: Juan Pérez García" required>
+                   required>
             @error('name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
 
-        <!-- Contraseña -->
-        <div>
+        <div class="mb-4">
             <label class="block text-gray-700 font-semibold mb-2">
-                <i class="fas fa-lock mr-2 text-azul-principal"></i>Contraseña
+                <i class="fas fa-key mr-2 text-azul-principal"></i>Nueva Contraseña (opcional)
             </label>
             <input type="password" name="password" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-azul-principal focus:ring-2 focus:ring-azul-celeste"
-                   placeholder="Mínimo 6 caracteres" required>
+                   placeholder="Dejar en blanco para mantener la actual">
             @error('password')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-            <p class="text-xs text-gray-400 mt-1">La contraseña debe tener al menos 6 caracteres</p>
         </div>
 
-        <!-- Confirmar Contraseña -->
-        <div>
+        <div class="mb-6">
             <label class="block text-gray-700 font-semibold mb-2">
                 <i class="fas fa-check-circle mr-2 text-azul-principal"></i>Confirmar Contraseña
             </label>
             <input type="password" name="password_confirmation" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-azul-principal focus:ring-2 focus:ring-azul-celeste"
-                   placeholder="Repite la contraseña" required>
+                   placeholder="Repite la nueva contraseña">
         </div>
 
-        <!-- Botones -->
-        <div class="flex gap-3 pt-4">
+        <div class="flex gap-3">
             <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg hover:shadow-lg transition">
-                <i class="fas fa-save mr-2"></i> Registrar Usuario
+                <i class="fas fa-save mr-2"></i> Actualizar Usuario
             </button>
             <a href="{{ route('users.index') }}" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition">
                 Cancelar

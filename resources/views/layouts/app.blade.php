@@ -68,6 +68,8 @@
                         <i class="fas fa-boxes"></i>
                         <span>Gestionar Cajas</span>
                     </a>
+
+                    
                 </nav>
             </div>
             
