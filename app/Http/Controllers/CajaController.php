@@ -10,7 +10,7 @@ class CajaController extends Controller
 {
     // Listar todas las cajas
 
-    public function index(Request $request)
+   public function index(Request $request)
 {
     if (!Auth::check()) {
         return redirect('/login');
@@ -33,7 +33,43 @@ class CajaController extends Controller
         $query->where('año', $request->año);
     }
     
-    $cajas = $query->orderBy('created_at', 'desc')->paginate(12);
+    // Filtrar por rango de fechas
+    if ($request->filled('fecha_desde')) {
+        $query->whereDate('created_at', '>=', $request->fecha_desde);
+    }
+    
+    if ($request->filled('fecha_hasta')) {
+        $query->whereDate('created_at', '<=', $request->fecha_hasta);
+    }
+    
+    // Ordenar
+    switch ($request->get('sort', 'created_at_desc')) {
+        case 'created_at_desc':
+            $query->orderBy('created_at', 'desc');
+            break;
+        case 'created_at_asc':
+            $query->orderBy('created_at', 'asc');
+            break;
+        case 'numero_caja_asc':
+            $query->orderBy('numero_caja', 'asc');
+            break;
+        case 'numero_caja_desc':
+            $query->orderBy('numero_caja', 'desc');
+            break;
+        case 'mes_asc':
+            $query->orderBy('mes', 'asc')->orderBy('año', 'asc');
+            break;
+        case 'mes_desc':
+            $query->orderBy('mes', 'desc')->orderBy('año', 'desc');
+            break;
+        case 'batches_count':
+            $query->withCount('batches')->orderBy('batches_count', 'desc');
+            break;
+        default:
+            $query->orderBy('created_at', 'desc');
+    }
+    
+    $cajas = $query->paginate(12);
     
     return view('cajas.index', compact('cajas'));
 }
