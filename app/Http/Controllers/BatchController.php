@@ -23,12 +23,55 @@ class BatchController extends Controller
     }
 
     // Guardar nuevo batch
-    public function store(Request $request)
-    {
-        if (!Auth::check()) {
-            return redirect('/login');
+   public function store(Request $request)
+{
+    if (!Auth::check()) {
+        return redirect('/login');
+    }
+    
+    // Verificar si es múltiple o individual
+    if ($request->has('multiple') && $request->multiple == 1) {
+        // Validar para múltiples batches
+        $request->validate([
+            'caja_id' => 'required|exists:cajas,id',
+            'batches' => 'required|array|min:1',
+            'batches.*.numero_batch' => 'required|string|max:255',
+            'batches.*.folder' => 'required|string|max:255',
+            'batches.*.categoria' => 'required|string|max:255',
+            'batches.*.descripcion' => 'nullable|string'
+        ]);
+        
+        $contador = 0;
+        $errores = [];
+        
+        foreach ($request->batches as $batchData) {
+            try {
+                Batch::create([
+                    'numero_batch' => $batchData['numero_batch'],
+                    'folder' => $batchData['folder'],
+                    'categoria' => $batchData['categoria'],
+                    'descripcion' => $batchData['descripcion'] ?? null,
+                    'caja_id' => $request->caja_id
+                ]);
+                $contador++;
+            } catch (\Exception $e) {
+                $errores[] = $batchData['numero_batch'];
+            }
         }
         
+        if ($contador > 0) {
+            $mensaje = "Se crearon $contador batches exitosamente";
+            if (count($errores) > 0) {
+                $mensaje .= ". Errores con: " . implode(', ', $errores);
+            }
+            return redirect()->route('cajas.show', $request->caja_id)
+                ->with('success', $mensaje);
+        } else {
+            return redirect()->route('cajas.show', $request->caja_id)
+                ->with('error', 'No se pudo crear ningún batch');
+        }
+    } else {
+        // Guardar batch individual (original)
         $validated = $request->validate([
             'numero_batch' => 'required|string|max:255',
             'folder' => 'required|string|max:255',
@@ -42,6 +85,7 @@ class BatchController extends Controller
         return redirect()->route('cajas.show', $validated['caja_id'])
             ->with('success', 'Batch creado exitosamente');
     }
+}
 
     // Mostrar un batch específico
     public function show(Batch $batch)
