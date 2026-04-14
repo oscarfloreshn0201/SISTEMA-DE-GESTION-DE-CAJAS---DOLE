@@ -1,90 +1,138 @@
 @extends('layouts.app')
 
 @section('content')
-<div>
-    <!-- Banner con imagen -->
-    <div class="gradient-bg rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
-        <div class="absolute right-0 top-0 opacity-10">
+<div class="space-y-6">
+    <!-- Banner -->
+    <div class="bg-blanco rounded-2xl p-8 relative overflow-hidden shadow-sm">
+        <div class="absolute right-0 top-0 opacity-5">
             <i class="fas fa-boxes text-9xl mt-4 mr-4"></i>
         </div>
         <div class="relative z-10">
             <div class="flex items-center gap-3 mb-4">
-                <i class="fas fa-store text-3xl"></i>
-                <h1 class="text-3xl font-bold">Panel de Control</h1>
-            </div>
-            <p class="text-lg opacity-90">Bienvenido al sistema de gestión de cajas y batches</p>
-            <div class="mt-4 flex gap-2">
-                <span class="bg-white/20 px-3 py-1 rounded-full text-sm">Gestión de inventario</span>
-                <span class="bg-white/20 px-3 py-1 rounded-full text-sm">Control de batches</span>
+                <div class="bg-negro p-3 rounded-xl">
+                    <i class="fas fa-store text-white text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-negro">Panel de Control</h1>
+                    <p class="text-gris mt-1">Bienvenido, {{ Auth::user()->name }}</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Tarjetas de estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="gradient-bg w-12 h-12 rounded-lg flex items-center justify-center">
+    <!-- Tarjetas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        @php
+            $totalCajas = \App\Models\Caja::count();
+            $totalBatches = \App\Models\Batch::count();
+            $cajasEsteAnio = \App\Models\Caja::where('año', date('Y'))->count();
+            $promedio = $totalCajas > 0 ? round($totalBatches / $totalCajas, 1) : 0;
+        @endphp
+
+        <div class="bg-blanco rounded-2xl shadow-sm p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gris text-sm mb-1">Total Cajas</p>
+                    <p class="text-3xl font-bold text-negro">{{ $totalCajas }}</p>
+                </div>
+                <div class="bg-negro w-12 h-12 rounded-xl flex items-center justify-center">
                     <i class="fas fa-boxes text-white text-xl"></i>
                 </div>
-                <span class="text-3xl font-bold text-gray-800">{{ \App\Models\Caja::count() }}</span>
             </div>
-            <h3 class="text-lg font-semibold text-gray-700">Total de Cajas</h3>
-            <p class="text-gray-500 text-sm mt-2">Cajas registradas en el sistema</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-green-500 w-12 h-12 rounded-lg flex items-center justify-center">
+        <div class="bg-blanco rounded-2xl shadow-sm p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gris text-sm mb-1">Total Batches</p>
+                    <p class="text-3xl font-bold text-negro">{{ $totalBatches }}</p>
+                </div>
+                <div class="bg-negro w-12 h-12 rounded-xl flex items-center justify-center">
                     <i class="fas fa-tags text-white text-xl"></i>
                 </div>
-                <span class="text-3xl font-bold text-gray-800">{{ \App\Models\Batch::count() }}</span>
             </div>
-            <h3 class="text-lg font-semibold text-gray-700">Total de Batches</h3>
-            <p class="text-gray-500 text-sm mt-2">Batches almacenados</p>
+        </div>
+
+        <div class="bg-blanco rounded-2xl shadow-sm p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gris text-sm mb-1">Cajas {{ date('Y') }}</p>
+                    <p class="text-3xl font-bold text-negro">{{ $cajasEsteAnio }}</p>
+                </div>
+                <div class="bg-negro w-12 h-12 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-blanco rounded-2xl shadow-sm p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gris text-sm mb-1">Promedio x Caja</p>
+                    <p class="text-3xl font-bold text-negro">{{ $promedio }}</p>
+                </div>
+                <div class="bg-negro w-12 h-12 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-white text-xl"></i>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Acciones rápidas -->
+    <!-- Búsqueda -->
+    <div class="bg-blanco rounded-2xl shadow-sm p-6">
+        <h3 class="text-lg font-bold text-negro mb-4">
+            <i class="fas fa-search mr-2 text-gris"></i> Búsqueda Rápida
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <input type="text" id="searchCaja" placeholder="Buscar caja..." 
+                       class="w-full px-4 py-2 border border-gris rounded-lg focus:outline-none focus:border-negro bg-blanco">
+            </div>
+            <div>
+                <input type="text" id="searchBatch" placeholder="Buscar batch..." 
+                       class="w-full px-4 py-2 border border-gris rounded-lg focus:outline-none focus:border-negro bg-blanco">
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-box text-blue-500 mr-2"></i>
-                Gestión de Cajas
+        <div class="bg-blanco rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-negro mb-3">
+                <i class="fas fa-box mr-2 text-gris"></i> Gestión de Cajas
             </h3>
-            <p class="text-gray-600 mb-4">Administra las cajas, crea nuevas o edita existentes.</p>
-            <a href="{{ route('cajas.index') }}" class="inline-flex items-center gap-2 gradient-bg text-white px-6 py-2 rounded-lg hover:shadow-lg transition">
-                <i class="fas fa-arrow-right"></i>
+            <a href="{{ route('cajas.index') }}" class="btn-primary inline-block px-4 py-2 rounded-lg">
                 Ir a Cajas
             </a>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">
-                <i class="fas fa-chart-line text-green-500 mr-2"></i>
-                Resumen Rápido
+        <div class="bg-negro rounded-2xl shadow-sm p-6">
+            <h3 class="text-lg font-bold text-white mb-3">
+                <i class="fas fa-bolt mr-2"></i> Acciones Rápidas
             </h3>
-            <div class="space-y-2">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Última caja creada:</span>
-                    <span class="font-semibold">
-                        @php
-                            $ultimaCaja = \App\Models\Caja::latest()->first();
-                        @endphp
-                        {{ $ultimaCaja ? $ultimaCaja->display_name : 'Ninguna' }}
-                    </span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Último batch creado:</span>
-                    <span class="font-semibold">
-                        @php
-                            $ultimoBatch = \App\Models\Batch::latest()->first();
-                        @endphp
-                        {{ $ultimoBatch ? $ultimoBatch->numero_batch : 'Ninguno' }}
-                    </span>
-                </div>
+            <div class="flex gap-3">
+                <a href="{{ route('cajas.create') }}" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition">
+                    Nueva Caja
+                </a>
+                <a href="{{ route('cajas.index') }}" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition">
+                    Ver Cajas
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('searchCaja')?.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter' && this.value.trim()) {
+        window.location.href = '/cajas?numero_caja=' + encodeURIComponent(this.value);
+    }
+});
+
+document.getElementById('searchBatch')?.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter' && this.value.trim()) {
+        window.location.href = '/batches/search?numero_batch=' + encodeURIComponent(this.value);
+    }
+});
+</script>
 @endsection
