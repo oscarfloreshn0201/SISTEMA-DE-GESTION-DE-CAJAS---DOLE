@@ -10,16 +10,9 @@ use App\Http\Controllers\BatchController;
 Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
-
-// Dashboard
-Route::get('/dashboard', function () {
-    if (!Auth::check()) {
-        return redirect('/login');
-    }
-    return view('dashboard');
-})->name('dashboard');
-
-// Rutas de usuarios - Solo accesibles por URL directa
+Route::get('/register', [UserController::class, 'create'])->name('register');
+Route::post('/register', [UserController::class, 'store'])->name('register.store');
+// Rutas de usuarios (TODAS las rutas CRUD)
 Route::resource('users', UserController::class);
 
 // Rutas de cajas
@@ -33,6 +26,14 @@ Route::get('/batches/{batch}', [BatchController::class, 'show'])->name('batches.
 Route::get('/batches/{batch}/edit', [BatchController::class, 'edit'])->name('batches.edit');
 Route::put('/batches/{batch}', [BatchController::class, 'update'])->name('batches.update');
 Route::delete('/batches/{batch}', [BatchController::class, 'destroy'])->name('batches.destroy');
+
+// Dashboard (protegido)
+Route::get('/dashboard', function () {
+    if (!Auth::check()) {
+        return redirect('/login');
+    }
+    return view('dashboard');
+})->name('dashboard');
 
 // Ruta principal
 Route::get('/', function () {

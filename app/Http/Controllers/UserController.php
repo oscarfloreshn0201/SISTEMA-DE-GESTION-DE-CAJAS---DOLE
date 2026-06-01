@@ -9,7 +9,7 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    // Método privado para verificar autenticación (evita repetir código)
+    // Método privado para verificar autenticación (solo para métodos protegidos)
     private function checkAuth()
     {
         if (!Auth::check()) {
@@ -18,6 +18,8 @@ class UserController extends Controller
         return null;
     }
 
+    // ========== MÉTODOS PÚBLICOS (sin autenticación) ==========
+    
     // Mostrar formulario de login
     public function showLoginForm()
     {
@@ -42,6 +44,40 @@ class UserController extends Controller
         ])->onlyInput('username');
     }
 
+    // Mostrar formulario de registro (público)
+    public function create()
+    {
+        return view('users.create');
+    }
+
+    // Guardar nuevo usuario (público)
+    public function store(Request $request)
+    {
+        // Validar los datos
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        // Crear el usuario
+        $user = User::create([
+            'username' => $request->username,
+            'name' => $request->name,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Opción 1: Auto-loguear al usuario (recomendado)
+        Auth::login($user);
+        
+        return redirect()->intended('/dashboard')
+            ->with('success', '¡Bienvenido! Tu cuenta ha sido creada exitosamente.');
+        
+        // Opción 2: Redirigir al login (comenta la línea anterior y descomenta esta)
+        // return redirect()->route('login')
+        //     ->with('success', 'Usuario creado exitosamente. Ahora inicia sesión.');
+    }
+
     // Cerrar sesión
     public function logout(Request $request)
     {
@@ -50,6 +86,8 @@ class UserController extends Controller
         $request->session()->regenerateToken();
         return redirect('/login');
     }
+
+    // ========== MÉTODOS PROTEGIDOS (requieren autenticación) ==========
 
     // Listar usuarios
     public function index(Request $request)
@@ -67,37 +105,6 @@ class UserController extends Controller
         $users = $query->orderBy('created_at', 'desc')->paginate(15);
         
         return view('users.index', compact('users'));
-    }
-
-    // Mostrar formulario crear usuario
-    public function create()
-    {
-        $redirect = $this->checkAuth();
-        if ($redirect) return $redirect;
-        
-        return view('users.create');
-    }
-
-    // Guardar nuevo usuario
-    public function store(Request $request)
-    {
-        $redirect = $this->checkAuth();
-        if ($redirect) return $redirect;
-        
-        $request->validate([
-            'username' => 'required|string|max:255|unique:users',
-            'name' => 'required|string|max:255',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        User::create([
-            'username' => $request->username,
-            'name' => $request->name,
-            'password' => Hash::make($request->password),
-        ]);
-
-        return redirect()->route('users.index')
-            ->with('success', 'Usuario creado exitosamente');
     }
 
     // Mostrar un usuario

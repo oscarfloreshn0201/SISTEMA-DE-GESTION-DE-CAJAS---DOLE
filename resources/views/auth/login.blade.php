@@ -42,7 +42,7 @@
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; color: #212121; font-weight: 600; margin-bottom: 8px;">Usuario</label>
+                        <label style="display: block; color: #212121; font-weight: 600; margin-bottom: 8px;">Usuaooorio</label>
                         <input type="text" name="username" value="{{ old('username') }}" 
                                style="width: 100%; padding: 12px; border: 1px solid #E0E0E0; border-radius: 8px; outline: none;"
                                onfocus="this.style.borderColor='#212121'"
